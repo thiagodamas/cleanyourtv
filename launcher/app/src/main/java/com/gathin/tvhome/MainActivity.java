@@ -73,12 +73,19 @@ import java.util.Set;
  */
 public class MainActivity extends Activity implements AppAdapter.TileListener {
 
+    /** Sent by InputKeyService when a configured Input button should open this menu. */
+    static final String ACTION_SHOW_INPUTS = "com.gathin.tvhome.SHOW_INPUTS";
+
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
     static int COLUMNS = 4;
     private static final long MINUTE_MS = 60_000L;
     private String liveTvPkg;
     private String liveTvAction;
     private String inputAction;
+    /** config.xml input_button_opens_menu, or a theme. Off: KEYCODE_TV is left to InputKeyService. */
+    private boolean inputButtonOpensMenu;
+    /** config.xml input_button_scancodes, or a theme. Empty: no extra remote key is taken. */
+    private int[] inputButtonScancodes = new int[0];
     private String sourcePanelService;
     private String sourcePanelAction;
 
@@ -191,6 +198,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         liveTvPkg = cfg.liveTvPackage;
         liveTvAction = cfg.liveTvAction;
         inputAction = cfg.inputAction;
+        inputButtonOpensMenu = cfg.inputButtonOpensMenu;
+        inputButtonScancodes = cfg.inputButtonScancodes;
         sourcePanelService = cfg.sourcePanelService;
         sourcePanelAction = cfg.sourcePanelAction;
 
@@ -370,10 +379,28 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
+        // Keep the current tile. onResume opens the menu; a Home press still resets below.
+        if (intent != null && ACTION_SHOW_INPUTS.equals(intent.getAction())) return;
         if (intent == null || !intent.hasCategory(Intent.CATEGORY_HOME)) return;
         grid.scrollToPosition(0);
         lastFocused = 0;
         lastFocusedKey = adapter.getItemCount() > 0 ? adapter.keyAt(0) : null;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // The accessibility service sees the key first when it is filtering. This covers Home when
+        // the service is off. KEYCODE_TV is not eaten unless the theme asked for this menu, and a
+        // hidden Inputs pill is not eaten either.
+        if (btnInputs != null && btnInputs.getVisibility() == View.VISIBLE
+                && InputKeyService.opensLauncherMenu(event, inputButtonOpensMenu, inputButtonScancodes)) {
+            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
+                InputKeyService.openInputs(this);
+            }
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -391,6 +418,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updateWifiLabel();
         updateInputsButton();
         handler.postDelayed(minuteTick, MINUTE_MS);
+        openInputsIfAsked();
+    }
+
+    /** The Input button asks for the menu. Clear the action so returning from HDMI does not open it again. */
+    private void openInputsIfAsked() {
+        Intent intent = getIntent();
+        if (intent == null || !ACTION_SHOW_INPUTS.equals(intent.getAction())) return;
+        intent.setAction(null);
+        setIntent(intent);
+        if (btnInputs.getVisibility() != View.VISIBLE) return;
+        btnInputs.post(this::showInputs);
     }
 
     /** Rebuilds the tiles (and the module cards), then puts focus back where it was. */

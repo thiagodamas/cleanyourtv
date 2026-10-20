@@ -47,6 +47,17 @@
     <integer-array name="settings_key_scancodes">
     </integer-array>
 
+    <!-- When true, KEYCODE_TV opens this launcher's Inputs menu instead of the system input switcher.
+         Off by default, including while INPUT_KEY_SERVICE is enabled. A theme's config.json turns it on.
+         If the Inputs pill is hidden, the key is not consumed. -->
+    <bool name="input_button_opens_menu">false</bool>
+
+    <!-- Extra Linux scancodes that open the Inputs menu. Empty by default, so no remote key is taken.
+         Matched only from an IR receiver, so a keyboard key with the same scancode still types.
+         The AIWA AI PONT SA source button is KEY_G, scancode 34 (IR scan 0040bf5b). -->
+    <integer-array name="input_button_scancodes">
+    </integer-array>
+
     <!-- Show the Solar Hijri (Shamsi) date used in Iran and Afghanistan, e.g. "27 Mehr 1405", above the
          Gregorian date. -->
     <bool name="shamsi_date">false</bool>

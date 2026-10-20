@@ -38,6 +38,10 @@ final class Config {
     final String sourcePanelService;
     final String sourcePanelAction;
     final String inputAction;
+    /** KEYCODE_TV opens this launcher's Inputs menu. Off unless a theme says otherwise. */
+    final boolean inputButtonOpensMenu;
+    /** Linux scancodes that open the Inputs menu. Empty unless a theme lists them. */
+    final int[] inputButtonScancodes;
     final int columns;
     final int rowsBelowDock;
     final boolean shamsiDate;
@@ -55,6 +59,7 @@ final class Config {
 
     private Config(List<String> dockApps, List<String> hiddenApps, String liveTvPackage, String liveTvAction,
                    String sourcePanelService, String sourcePanelAction, String inputAction,
+                   boolean inputButtonOpensMenu, int[] inputButtonScancodes,
                    int columns, int rowsBelowDock,
                    boolean shamsiDate, boolean moduleCards, boolean reducedMotion, String vpnApp,
                    boolean showHomeSettingsShortcut, int backgroundColor,
@@ -66,6 +71,8 @@ final class Config {
         this.sourcePanelService = sourcePanelService;
         this.sourcePanelAction = sourcePanelAction;
         this.inputAction = inputAction;
+        this.inputButtonOpensMenu = inputButtonOpensMenu;
+        this.inputButtonScancodes = inputButtonScancodes;
         this.columns = columns;
         this.rowsBelowDock = rowsBelowDock;
         this.shamsiDate = shamsiDate;
@@ -92,6 +99,8 @@ final class Config {
         String panelService = res.getString(R.string.source_panel_service).trim();
         String panelAction = res.getString(R.string.source_panel_action).trim();
         String inputAction = res.getString(R.string.input_action).trim();
+        boolean inputMenu = res.getBoolean(R.bool.input_button_opens_menu);
+        int[] inputScans = res.getIntArray(R.array.input_button_scancodes);
         int columns = res.getInteger(R.integer.columns);
         int rowsBelow = res.getInteger(R.integer.rows_below_dock);
         boolean shamsi = res.getBoolean(R.bool.shamsi_date);
@@ -114,6 +123,8 @@ final class Config {
             panelService = string(json, "source_panel_service", panelService);
             panelAction = string(json, "source_panel_action", panelAction);
             inputAction = string(json, "input_action", inputAction);
+            inputMenu = bool(json, "input_button_opens_menu", inputMenu);
+            inputScans = intArray(json, "input_button_scancodes", inputScans);
             columns = integer(json, "columns", columns, 1, 8);
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
             shamsi = bool(json, "shamsi_date", shamsi);
@@ -129,6 +140,7 @@ final class Config {
         if (json != null && json.has("wallpaper") && !bool(json, "wallpaper", true)) wallpaper = null;
 
         return new Config(dock, hidden, liveTv, liveTvAction, panelService, panelAction, inputAction,
+                inputMenu, inputScans,
                 Math.max(1, columns), Math.max(0, rowsBelow), shamsi, moduleCards, reducedMotion,
                 vpn, homeSettings, background, wallpaper, applied);
     }
@@ -191,5 +203,18 @@ final class Config {
             if (item instanceof String && !((String) item).trim().isEmpty()) out.add(((String) item).trim());
         }
         return out;
+    }
+
+    private static int[] intArray(JSONObject o, String key, int[] fallback) {
+        Object v = o.opt(key);
+        if (!(v instanceof JSONArray)) return fallback;
+        JSONArray a = (JSONArray) v;
+        int[] out = new int[a.length()];
+        int n = 0;
+        for (int i = 0; i < a.length(); i++) {
+            Object item = a.opt(i);
+            if (item instanceof Number) out[n++] = ((Number) item).intValue();
+        }
+        return n == out.length ? out : Arrays.copyOf(out, n);
     }
 }
