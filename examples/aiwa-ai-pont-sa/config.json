@@ -8,6 +8,8 @@
   ],
   "hidden_apps": [],
   "live_tv_package": "com.mediatek.wwtv.tvcenter",
+  "input_button_opens_menu": true,
+  "input_button_scancodes": [34],
   "columns": 4,
   "rows_below_dock": 0,
   "reduced_motion": false,

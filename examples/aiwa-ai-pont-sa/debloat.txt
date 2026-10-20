@@ -46,6 +46,11 @@
 #   holding the remote. Not rechecked from inside another app. A keyboard G is
 #   not consumed. sendevent on the IR device is denied to the shell, so the
 #   press could not be injected.
+# - That mapping is off in the launcher. This folder's config.json turns it on
+#   with "input_button_opens_menu": true and "input_button_scancodes": [34].
+#   Until that file is pushed, KEYCODE_TV still opens the system input switcher
+#   and no other key is taken. A listed scancode is matched only from an IR
+#   receiver, and only while the Inputs pill would be visible.
 #
 # KEEP, even though some names look like bloat:
 # - com.homwee.dmt.upgrade: firmware updates. com.homwee.upgrade below is the

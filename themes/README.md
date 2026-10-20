@@ -28,6 +28,8 @@ is ignored, and a file that doesn't parse is ignored as a whole, so a theme can 
 | `live_tv_package`, `live_tv_action` | string | The Live TV app and, if it has no leanback entry, the action to start it with |
 | `source_panel_service`, `source_panel_action` | string | The TV's own source panel, for sets with no TvInputManager |
 | `input_action` | string | Action sent with an HDMI/AV row's channel URI when nothing handles the standard `VIEW` (XGIMI: `com.xgimi.action.hdmiPlayer`) |
+| `input_button_opens_menu` | bool | `KEYCODE_TV` opens this launcher's Inputs menu (`true`) instead of the system input switcher. Off by default, including while `INPUT_KEY_SERVICE` is enabled. If the Inputs pill is hidden, the key is not consumed |
+| `input_button_scancodes` | list of ints | Extra Linux scancodes that open the Inputs menu. Empty by default. Matched only from an IR receiver, so a keyboard key with the same scancode still types. Ignored when the Inputs pill would be hidden. The AIWA AI PONT SA source button is `34` (`KEY_G`) |
 | `columns` | 1 to 8 | Tiles per row; tiles shrink to fit from 5 up |
 | `rows_below_dock` | 0 to 3 | Grid rows left visible under the dock |
 | `shamsi_date` | bool | Show the Solar Hijri date above the Gregorian one |

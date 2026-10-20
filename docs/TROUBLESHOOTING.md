@@ -101,7 +101,7 @@ tools/tv.py 'dumpsys accessibility'
 | Helper | Component in the enabled-services list | Key it filters |
 | --- | --- | --- |
 | Home button | `com.gathin.tvhome/.HomeKeyService` | `KEYCODE_ALL_APPS` (not an ordinary `KEYCODE_HOME`) |
-| Input button | `com.gathin.tvhome/.InputKeyService` | `KEYCODE_TV` |
+| Input button | `com.gathin.tvhome/.InputKeyService` | `KEYCODE_TV` (system input switcher). `input_button_opens_menu` sends it to this launcher's Inputs menu. `input_button_scancodes` adds IR scancodes. Both are off unless `config.xml` or a theme sets them, and a hidden Inputs pill is not consumed |
 
 - **Enabled** means the component is in that user's colon-separated list (the class may be written in
   full, `com.gathin.tvhome/com.gathin.tvhome.HomeKeyService`). Match the whole component.
